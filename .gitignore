@@ -1,0 +1,12 @@
+.idea/*
+.DS_Store
+*.iml
+*.pyc
+*.pid
+.Python
+*.sql
+media/
+static/node_modules/
+node_modules/
+.hypothesis/
+shop/settings/overrides.py

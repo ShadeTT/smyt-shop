@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mptt_tags %}
+{% load thumbnail %}
+
+{% block content %}
+
+    <div class="breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-inner">
+                <ul class="list-inline list-unstyled">
+                    <li><a href="/">Home</a></li>
+                    <li class='active'>{{ section.title }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="body-content outer-top-xs">
+        <div class='container'>
+            <div class="homepage-container">
+                <div class='row outer-bottom-sm'>
+                    <div class='col-md-3 sidebar'>
+                        <div class="side-menu animate-dropdown outer-bottom-xs">
+                            <div class="head">
+                                <i class="icon fa fa-align-justify fa-fw"></i> Categories
+                            </div>
+                            <nav class="yamm megamenu-horizontal" role="navigation">
+                                <ul class="nav">
+                                    {% recursetree category_list %}
+                                        {% if node.level == 0 %}
+                                            <li class="dropdown menu-item">
+                                                {% if node.is_leaf_node %}
+                                                    <a href="{{ node.get_absolute_url }}">
+                                                        {{ node.name }}
+                                                    </a>
+                                                {% else %}
+                                                    <a href="#" class="dropdown-toggle">{{ node.name }}</a>
+                                                    <ul class="dropdown-menu mega-menu">
+                                                        <li class="yamm-content">
+                                                            <div class="row">
+                                                                <div class="col-sm-12 col-md-12">
+                                                                    <ul class="links list-unstyled">
+                                                                        {{ children }}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                {% endif %}
+                                            </li>
+                                        {% else %}
+                                            <li>
+                                                {% if node.is_leaf_node %}
+                                                    <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+                                                {% else %}
+                                                    <a href="#" class="sub-menu_trigger">{{ node.name }}</a>
+                                                    <ul class="sub-menu">
+                                                        {{ children }}
+                                                    </ul>
+                                                {% endif %}
+                                            </li>
+                                        {% endif %}
+                                    {% endrecursetree %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class='col-md-9'>
+                        <div class="clearfix filters-container m-t-10">
+                            <div class="row">
+                                <div class="col col-sm-6 col-md-2">
+                                    <div class="filter-tabs">
+                                        <ul id="filter-tabs" class="nav nav-tabs nav-tab-box nav-tab-fa-icon">
+                                            <li class="active">
+                                                <a data-toggle="tab" href="#grid-container"><i class="icon fa fa-th-list"></i>Grid</a>
+                                            </li>
+                                            <li>
+                                                <a data-toggle="tab" href="#list-container"><i class="icon fa fa-th"></i>List</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col col-sm-12 col-md-6">
+                                    <div class="col col-sm-3 col-md-6 no-padding">
+                                        <div class="lbl-cnt">
+                                            <span class="lbl">Sort by</span>
+
+                                            <div class="fld inline">
+                                                <div class="dropdown dropdown-small dropdown-med dropdown-white inline">
+                                                    <button data-toggle="dropdown" type="button" class="btn dropdown-toggle">
+                                                        name
+                                                        <span class="caret"></span>
+                                                    </button>
+
+                                                    <ul role="menu" class="dropdown-menu">
+                                                        {% for key, val in sort_list.iteritems %}
+                                                            <li role="presentation">
+                                                                <a href="?l={{ request.GET.l|default:12 }}&p={{ request.GET.p|default:1 }}&s={{ key }}">{{ val }}</a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col col-sm-3 col-md-6 no-padding">
+                                        <div class="lbl-cnt">
+                                            <span class="lbl">Show</span>
+
+                                            <div class="fld inline">
+                                                <div class="dropdown dropdown-small dropdown-med dropdown-white inline">
+                                                    <button data-toggle="dropdown" type="button" class="btn dropdown-toggle">{{ request.GET.l|default:12 }}<span class="caret"></span>
+                                                    </button>
+                                                    <ul role="menu" class="dropdown-menu">
+                                                        <li role="presentation">
+                                                            <a href="?l={{ i }}&p={{ page_obj.number }}&s={{ request.GET.s|default:'?' }}">{{ i }}</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if is_paginated %}
+                                    <div class="col col-sm-6 col-md-4 text-right">
+                                        {% include 'products/blocks/pagination.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                        <div class="search-result-container">
+                            <div id="myTabContent" class="tab-content">
+                                <div class="tab-pane active" id="grid-container">
+                                    <div class="category-product  inner-top-vs">
+                                        <div class="row">
+                                            {% for item in object_list %}
+                                                {% include 'section_product_grid.html' %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane" id="list-container">
+                                    <div class="category-product  inner-top-vs">
+                                        {% for item in object_list %}
+                                            <div class="category-product-inner">
+                                                <div class="products">
+                                                    <div class="product-list product">
+                                                        <div class="row product-list-row">
+                                                            <div class="col col-sm-4 col-lg-4">
+                                                                <div class="product-image">
+                                                                    <div class="image">
+                                                                        {% thumbnail item.image '270x347' crop='center' as im %}
+                                                                            <img data-echo="{{ im.url }}" src="{% static 'images/blank.gif' %}" alt="{{ item.title }}">
+                                                                        {% endthumbnail %}
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col col-sm-8 col-lg-8">
+                                                                <div class="product-info">
+                                                                    <h3 class="name">
+                                                                        <a href="product_detail.html">{{ item.title }}</a>
+                                                                    </h3>
+
+                                                                    {% if item.price %}
+                                                                        <div class="rating rateit-small"
+                                                                             data-rating="{{ item.rating|floatformat:0|default:0 }}">
+                                                                        </div>
+                                                                        <div class="product-price">
+                                                                            <span class="price">{{ item.price }}</span>
+                                                                            <span class="price-before-discount">$ 800</span>
+
+                                                                        </div>
+
+                                                                        <div class="description m-t-10">
+                                                                            {{ item.description|truncatechars:"200" }}
+                                                                        </div>
+                                                                        <div class="cart clearfix animate-effect">
+                                                                            <div class="action">
+
+                                                                                <button data-name="add_to_cart" data-id="{{ item.id }}" class="btn btn-primary" type="button">Add to cart</button>
+                                                                                <button class="left btn btn-primary" type="button">
+                                                                                    <i class="icon fa fa-heart"></i>
+                                                                                </button>
+                                                                                <button class="left btn btn-primary" data-id="{{ item.id }}" data-name="add_to_compare" data-url="#" title="Add to Compare" type="button">
+                                                                                    <i class="fa fa-retweet"></i>
+                                                                                </button>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="tag {{ item.tag }}">
+                                                            <span>{{ item.get_tag_display }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if is_paginated %}
+                                <div class="clearfix filters-container">
+                                    <div class="text-right">
+                                        {% include 'products/blocks/pagination.html' %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

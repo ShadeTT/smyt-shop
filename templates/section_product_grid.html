@@ -1,0 +1,49 @@
+{% load static %}
+{% load thumbnail %}
+<div class="col-sm-6 col-md-4">
+    <div class="products">
+        <div class="product">
+            <div class="product-image">
+                <div class="image">
+                    <a href="{{ item.get_absolute_url }}">
+                        {% thumbnail item.image '270x347' crop='center' as im %}
+                            <img src="{% static 'images/blank.gif' %}" data-echo="{{ im.url }}" alt="{{ item.title }}">
+                        {% endthumbnail %}
+                    </a>
+                </div>
+
+                <div class="tag {{ item.tag }}">
+                    <span>{{ item.get_tag_display }}</span>
+                </div>
+            </div>
+            <div class="product-info text-left">
+                <h3 class="name"><a
+                        href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+                </h3>
+                {% if item.price %}
+                    <div class="rating rateit-small"
+                         data-rating="{{ item.rating|floatformat:0|default:0 }}">
+                    </div>
+
+                    <div class="description">
+                    </div>
+
+                    <div class="product-price"><span
+                            class="price">{{ item.price }} {{ item.currency.sign }}</span>
+                        <span class="price-before-discount">$ 800</span>
+
+                    </div>
+                {% endif %}
+            </div>
+            {% if item.price %}
+                <div class="cart clearfix animate-effect">
+                    <div class="action">
+                        <button data-name="add_to_cart" data-id="{{ item.id }}" class="btn btn-primary" type="button">Add to cart</button>
+                        <button class="left btn btn-primary" type="button"><i class="icon fa fa-heart"></i></button>
+                        <button class="left btn btn-primary" data-id="{{ item.id }}" data-name="add_to_compare" data-url="#" title="Add to Compare" type="button"><i class="fa fa-retweet"></i></button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
